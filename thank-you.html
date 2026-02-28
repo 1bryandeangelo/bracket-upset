@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>You're In — Bracket Upset</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --fg: #1a1a1a;
+      --fg-secondary: #555;
+      --fg-muted: #888;
+      --bg: #fafaf8;
+      --bg-card: #ffffff;
+      --border: #e0ddd8;
+      --accent: #2c5f2d;
+      --accent-hover: #1e4420;
+      --serif: 'IBM Plex Serif', Georgia, serif;
+      --sans: 'IBM Plex Sans', -apple-system, sans-serif;
+      --mono: 'IBM Plex Mono', monospace;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--sans);
+      color: var(--fg);
+      background: var(--bg);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Nav */
+    nav {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 680px;
+    }
+    .nav-mark {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: var(--fg-secondary);
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .nav-mark:hover { color: var(--fg); }
+    .nav-year {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--fg-muted);
+    }
+
+    /* Main content */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 0;
+    }
+
+    .confirmation {
+      text-align: center;
+    }
+
+    .check-icon {
+      width: 48px;
+      height: 48px;
+      border: 2px solid var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 32px;
+    }
+    .check-icon svg {
+      width: 22px;
+      height: 22px;
+      stroke: var(--accent);
+      fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .confirmation h1 {
+      font-family: var(--serif);
+      font-size: 36px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin-bottom: 16px;
+    }
+
+    .confirmation-text {
+      font-size: 16px;
+      color: var(--fg-secondary);
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+
+    .delivery-note {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--fg-muted);
+      margin-bottom: 48px;
+    }
+
+    /* Divider */
+    .divider {
+      width: 40px;
+      height: 1px;
+      background: var(--border);
+      margin: 0 auto 40px;
+    }
+
+    /* Preview section */
+    .preview-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--fg-muted);
+      margin-bottom: 12px;
+    }
+
+    .preview-desc {
+      font-size: 14px;
+      color: var(--fg-secondary);
+      line-height: 1.7;
+      margin-bottom: 24px;
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .btn-preview {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent);
+      background: var(--bg-card);
+      border: 1.5px solid var(--accent);
+      padding: 12px 28px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+    .btn-preview:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-preview svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 0;
+      text-align: center;
+    }
+    .footer-contact {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--fg-muted);
+    }
+    .footer-contact a {
+      color: var(--fg-secondary);
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+    }
+    .footer-contact a:hover { border-color: var(--fg); }
+
+    /* Animation */
+    @media (prefers-reduced-motion: no-preference) {
+      .confirmation {
+        opacity: 0;
+        transform: translateY(12px);
+        animation: fadeUp 0.5s ease 0.1s forwards;
+      }
+      @keyframes fadeUp {
+        to { opacity: 1; transform: translateY(0); }
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="container" style="max-width:680px;">
+      <a href="./" class="nav-mark">Bracket Upset</a>
+      <span class="nav-year">2026 NCAA Tournament</span>
+    </div>
+  </nav>
+
+  <main>
+    <div class="container">
+      <div class="confirmation">
+
+        <div class="check-icon">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+
+        <h1>You're In.</h1>
+
+        <p class="confirmation-text">
+          Your NCAA Tournament Round 1 Upset Report<br>
+          will be delivered to your email on March 15.
+        </p>
+
+        <p class="delivery-note">
+          Sent after the official bracket is announced.
+        </p>
+
+        <div class="divider"></div>
+
+        <p class="preview-label">Sneak Preview</p>
+
+        <p class="preview-desc">
+          Model methodology, historical backtest results,
+          and a sample matchup output.
+        </p>
+
+        <a href="./preview.pdf" class="btn-preview">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Sneak Preview
+        </a>
+
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p class="footer-contact">
+        Questions? <a href="mailto:bracketupset@gmail.com">bracketupset@gmail.com</a>
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>
