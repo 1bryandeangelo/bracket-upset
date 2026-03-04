@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matchup Simulator — Bracket Upset</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{--fg:#0F172A;--fg-sec:#475569;--fg-muted:#94a3b8;--bg:#f8fafc;--bg-card:#fff;--border:#e2e8f0;--accent:#22C55E;--accent-hover:#16a34a;--accent-dim:#bbf7d0;--navy:#0F172A;--amber:#f59e0b;--amber-light:#fefce8;--serif:'IBM Plex Serif',Georgia,serif;--sans:'IBM Plex Sans',-apple-system,sans-serif;--mono:'IBM Plex Mono',monospace}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--sans);color:var(--fg);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
+
+    /* NAV */
+    nav{padding:16px 0;background:var(--navy);border-bottom:3px solid var(--accent)}
+    nav .wrap{max-width:800px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between}
+    .nav-mark{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:0.04em;color:#fff;text-transform:uppercase;text-decoration:none;display:flex;align-items:center;gap:8px}
+    .nav-right{display:flex;align-items:center;gap:16px}
+    .nav-user{font-size:12px;color:var(--fg-muted)}
+    .nav-btn{font-size:12px;color:var(--accent);background:none;border:1px solid rgba(34,197,94,0.3);padding:4px 12px;border-radius:4px;cursor:pointer;font-family:var(--sans)}
+    .nav-btn:hover{border-color:var(--accent);color:#fff}
+
+    .wrap{max-width:800px;margin:0 auto;padding:0 24px}
+
+    /* AUTH SCREEN */
+    .auth-screen{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 60px);padding:40px 24px}
+    .auth-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:48px 40px;max-width:400px;width:100%;text-align:center}
+    .auth-logo{font-family:var(--mono);font-size:14px;font-weight:500;letter-spacing:0.06em;color:var(--fg);text-transform:uppercase;margin-bottom:24px}
+    .auth-title{font-family:var(--serif);font-size:24px;font-weight:600;margin-bottom:8px}
+    .auth-sub{font-size:14px;color:var(--fg-sec);margin-bottom:32px;line-height:1.6}
+    .auth-input{width:100%;padding:12px 16px;border:1px solid var(--border);border-radius:6px;font-size:14px;font-family:var(--sans);margin-bottom:12px;outline:none;transition:border 0.2s}
+    .auth-input:focus{border-color:var(--accent)}
+    .auth-btn{width:100%;padding:12px;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all 0.2s}
+    .auth-btn-primary{background:var(--accent);color:#fff;margin-bottom:12px}
+    .auth-btn-primary:hover{background:var(--accent-hover)}
+    .auth-btn-google{background:#fff;color:var(--fg);border:1px solid var(--border)}
+    .auth-btn-google:hover{background:var(--bg);border-color:var(--fg-muted)}
+    .auth-divider{display:flex;align-items:center;gap:12px;margin:16px 0;color:var(--fg-muted);font-size:12px}
+    .auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+    .auth-error{background:#fef2f2;color:#dc2626;font-size:13px;padding:10px 14px;border-radius:6px;margin-bottom:16px;display:none}
+    .auth-toggle{font-size:13px;color:var(--fg-sec);margin-top:16px}
+    .auth-toggle a{color:var(--accent);text-decoration:none;font-weight:500;cursor:pointer}
+    .auth-toggle a:hover{text-decoration:underline}
+
+    /* NO ACCESS */
+    .no-access-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:48px 40px;max-width:480px;width:100%;text-align:center}
+    .no-access-card h2{font-family:var(--serif);font-size:22px;margin-bottom:12px}
+    .no-access-card p{font-size:14px;color:var(--fg-sec);margin-bottom:24px;line-height:1.6}
+    .no-access-buy{display:inline-block;background:var(--accent);color:#fff;font-weight:600;padding:12px 28px;border-radius:6px;text-decoration:none;font-size:14px;transition:background 0.2s}
+    .no-access-buy:hover{background:var(--accent-hover)}
+    .no-access-hint{font-size:12px;color:var(--fg-muted);margin-top:16px;line-height:1.5}
+
+    /* SIMULATOR */
+    .sim-header{padding:40px 0 24px;text-align:center}
+    .sim-header h1{font-family:var(--serif);font-size:clamp(24px,4vw,32px);font-weight:600;margin-bottom:8px}
+    .sim-header p{font-size:14px;color:var(--fg-sec)}
+
+    .sim-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:32px;margin-bottom:24px}
+
+    .matchup-form{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:end;margin-bottom:8px}
+    .matchup-field label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--fg-muted);margin-bottom:6px}
+    .matchup-field select{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:6px;font-size:14px;font-family:var(--sans);background:var(--bg);cursor:pointer;outline:none;transition:border 0.2s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+    .matchup-field select:focus{border-color:var(--accent)}
+    .matchup-vs{font-family:var(--mono);font-size:14px;color:var(--fg-muted);text-align:center;padding-bottom:8px}
+    .sim-btn{width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:15px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all 0.2s;margin-top:8px}
+    .sim-btn:hover{background:var(--accent-hover)}
+    .sim-btn:disabled{background:var(--border);color:var(--fg-muted);cursor:not-allowed}
+
+    /* RESULTS */
+    .result-card{background:var(--bg-card);border:2px solid var(--accent);border-radius:12px;overflow:hidden;display:none}
+    .result-card.visible{display:block;animation:fadeUp 0.4s ease}
+    .result-header{background:var(--navy);padding:16px 24px;display:flex;justify-content:space-between;align-items:center}
+    .result-tier{font-family:var(--mono);font-size:12px;font-weight:500;padding:4px 10px;border-radius:4px}
+    .tier-coin{background:var(--amber);color:#fff}
+    .tier-live{background:#f97316;color:#fff}
+    .tier-mod{background:var(--accent);color:#fff}
+    .tier-strong{background:var(--fg-muted);color:#fff}
+    .result-label{font-size:12px;color:var(--fg-muted)}
+
+    .result-teams{display:grid;grid-template-columns:1fr 1fr;gap:0}
+    .result-team{padding:24px;text-align:center}
+    .result-team:first-child{border-right:1px solid var(--border)}
+    .result-team-name{font-weight:600;font-size:18px;margin-bottom:4px}
+    .result-team-conf{font-size:11px;color:var(--fg-muted);margin-bottom:12px}
+    .result-team-pct{font-family:var(--mono);font-size:40px;font-weight:500}
+    .result-team-pct.winner{color:var(--accent)}
+    .result-team-pct.loser{color:var(--fg-muted)}
+    .result-team-rating{font-size:12px;color:var(--fg-muted);margin-top:4px}
+
+    .result-bar-wrap{padding:0 24px 20px}
+    .result-bar{height:10px;background:#e2e8f0;border-radius:5px;overflow:hidden;position:relative}
+    .result-bar-fill{height:100%;background:var(--accent);border-radius:5px;transition:width 0.8s cubic-bezier(0.22,1,0.36,1)}
+
+    .result-meta{display:flex;justify-content:space-around;padding:16px 24px;background:var(--bg);border-top:1px solid var(--border);flex-wrap:wrap;gap:8px}
+    .result-meta-item{text-align:center}
+    .result-meta-value{font-family:var(--mono);font-size:16px;font-weight:500;color:var(--fg)}
+    .result-meta-label{font-size:11px;color:var(--fg-muted)}
+
+    .result-reset{text-align:center;margin-top:16px}
+    .result-reset button{background:none;border:1px solid var(--border);color:var(--fg-sec);padding:8px 20px;border-radius:6px;font-size:13px;cursor:pointer;font-family:var(--sans);transition:all 0.2s}
+    .result-reset button:hover{border-color:var(--fg-muted);color:var(--fg)}
+
+    /* LOADING */
+    .loading{text-align:center;padding:60px 24px;color:var(--fg-muted);font-size:14px}
+    .spinner{width:32px;height:32px;border:3px solid var(--border);border-top:3px solid var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px}
+
+    /* FOOTER */
+    footer{text-align:center;padding:32px 24px;font-size:11px;color:var(--fg-muted);margin-top:40px}
+    footer a{color:var(--fg-sec);text-decoration:none}
+    footer a:hover{color:var(--fg)}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* RESPONSIVE */
+    @media(max-width:600px){
+      .matchup-form{grid-template-columns:1fr;gap:12px}
+      .matchup-vs{display:none}
+      .result-teams{grid-template-columns:1fr}
+      .result-team:first-child{border-right:none;border-bottom:1px solid var(--border)}
+      .auth-card,.no-access-card{padding:32px 24px}
+    }
+
+    .hidden{display:none!important}
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="wrap">
+      <a href="https://bracketupset.com" class="nav-mark">Bracket Upset</a>
+      <div class="nav-right">
+        <span class="nav-user" id="navUser"></span>
+        <button class="nav-btn hidden" id="navSignOut" onclick="signOutUser()">Sign Out</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- LOADING -->
+  <div id="loadingScreen" class="loading">
+    <div class="spinner"></div>
+    Loading...
+  </div>
+
+  <!-- AUTH SCREEN -->
+  <div id="authScreen" class="auth-screen hidden">
+    <div class="auth-card">
+      <div class="auth-logo">Bracket Upset</div>
+      <h2 class="auth-title">Matchup Simulator</h2>
+      <p class="auth-sub">Sign in with the email you used at checkout to access the simulator.</p>
+      <div class="auth-error" id="authError"></div>
+      <form id="authForm" onsubmit="handleEmailAuth(event)">
+        <input type="email" class="auth-input" id="authEmail" placeholder="Email address" required>
+        <input type="password" class="auth-input" id="authPassword" placeholder="Password" required>
+        <button type="submit" class="auth-btn auth-btn-primary" id="authSubmitBtn">Sign In</button>
+      </form>
+      <div class="auth-divider">or</div>
+      <button class="auth-btn auth-btn-google" onclick="handleGoogleAuth()">
+        Continue with Google
+      </button>
+      <p class="auth-toggle" id="authToggle">
+        New here? <a onclick="toggleAuthMode()">Create account</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- NO ACCESS -->
+  <div id="noAccessScreen" class="auth-screen hidden">
+    <div class="no-access-card">
+      <h2>No Access Yet</h2>
+      <p>Your email isn't linked to a purchase. Get the Round 1 Probability Report to unlock the simulator.</p>
+      <a href="https://buy.stripe.com/5kQ14p9fQ98K8CBdJK7EQ00" class="no-access-buy">Get the Report — $9</a>
+      <p class="no-access-hint">Already purchased with a different email?<br><a href="#" onclick="signOutUser()" style="color:var(--accent)">Sign out</a> and try that email instead.</p>
+    </div>
+  </div>
+
+  <!-- SIMULATOR -->
+  <div id="simScreen" class="hidden">
+    <div class="wrap">
+      <div class="sim-header">
+        <h1>Matchup Simulator</h1>
+        <p>Select two teams for a neutral-court win probability.</p>
+      </div>
+
+      <div class="sim-card">
+        <div class="matchup-form">
+          <div class="matchup-field">
+            <label>Team A</label>
+            <select id="teamA"><option value="">Select team...</option></select>
+          </div>
+          <div class="matchup-vs">VS</div>
+          <div class="matchup-field">
+            <label>Team B</label>
+            <select id="teamB"><option value="">Select team...</option></select>
+          </div>
+        </div>
+        <button class="sim-btn" id="simBtn" onclick="runMatchup()" disabled>Compare</button>
+      </div>
+
+      <div class="result-card" id="resultCard">
+        <div class="result-header">
+          <span class="result-tier" id="resultTier"></span>
+          <span class="result-label">Neutral Court</span>
+        </div>
+        <div class="result-teams">
+          <div class="result-team">
+            <div class="result-team-name" id="resultNameA"></div>
+            <div class="result-team-conf" id="resultConfA"></div>
+            <div class="result-team-pct" id="resultPctA"></div>
+            <div class="result-team-rating" id="resultRatingA"></div>
+          </div>
+          <div class="result-team">
+            <div class="result-team-name" id="resultNameB"></div>
+            <div class="result-team-conf" id="resultConfB"></div>
+            <div class="result-team-pct" id="resultPctB"></div>
+            <div class="result-team-rating" id="resultRatingB"></div>
+          </div>
+        </div>
+        <div class="result-bar-wrap">
+          <div class="result-bar"><div class="result-bar-fill" id="resultBarFill"></div></div>
+        </div>
+        <div class="result-meta">
+          <div class="result-meta-item">
+            <div class="result-meta-value" id="resultDiff"></div>
+            <div class="result-meta-label">Rating Diff</div>
+          </div>
+          <div class="result-meta-item">
+            <div class="result-meta-value" id="resultK"></div>
+            <div class="result-meta-label">Logistic k</div>
+          </div>
+          <div class="result-meta-item">
+            <div class="result-meta-value" id="resultGames"></div>
+            <div class="result-meta-label">Games in Model</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-reset hidden" id="resultReset">
+        <button onclick="resetMatchup()">Try another matchup</button>
+      </div>
+    </div>
+
+    <footer>
+      <a href="https://bracketupset.com">bracketupset.com</a> · For entertainment purposes only. Not betting advice.
+    </footer>
+  </div>
+
+  <!-- FIREBASE SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, doc, getDoc, getDocs, addDoc, serverTimestamp, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCqth5y2SVkmxAzYr-Eo_CaMonf3ENYVhI",
+      authDomain: "bracket-upset.firebaseapp.com",
+      projectId: "bracket-upset",
+      storageBucket: "bracket-upset.firebasestorage.app",
+      messagingSenderId: "403981250904",
+      appId: "1:403981250904:web:67abf758687c881c3e752d"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const googleProvider = new GoogleAuthProvider();
+
+    // State
+    let currentUser = null;
+    let ratingsMap = {};
+    let modelConfig = {};
+    let isSignUp = false;
+
+    // Screens
+    const screens = {
+      loading: document.getElementById('loadingScreen'),
+      auth: document.getElementById('authScreen'),
+      noAccess: document.getElementById('noAccessScreen'),
+      sim: document.getElementById('simScreen'),
+    };
+
+    function showScreen(name) {
+      Object.values(screens).forEach(s => s.classList.add('hidden'));
+      screens[name].classList.remove('hidden');
+    }
+
+    // Auth state listener
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        document.getElementById('navUser').textContent = user.email;
+        document.getElementById('navSignOut').classList.remove('hidden');
+        await checkAccess(user.email);
+      } else {
+        currentUser = null;
+        document.getElementById('navUser').textContent = '';
+        document.getElementById('navSignOut').classList.add('hidden');
+        showScreen('auth');
+      }
+    });
+
+    async function checkAccess(email) {
+      try {
+        const userDoc = await getDoc(doc(db, 'users', email.toLowerCase()));
+        if (userDoc.exists() && userDoc.data().has_access === true) {
+          await loadRatings();
+          showScreen('sim');
+        } else {
+          showScreen('noAccess');
+        }
+      } catch (e) {
+        console.error('Access check failed:', e);
+        showScreen('noAccess');
+      }
+    }
+
+    async function loadRatings() {
+      if (Object.keys(ratingsMap).length > 0) return;
+
+      const ratingsSnap = await getDocs(collection(db, 'ratings'));
+      ratingsSnap.forEach(d => { ratingsMap[d.id] = d.data(); });
+
+      const configSnap = await getDoc(doc(db, 'config', 'model'));
+      if (configSnap.exists()) modelConfig = configSnap.data();
+
+      populateDropdowns();
+    }
+
+    function populateDropdowns() {
+      const teams = Object.values(ratingsMap).sort((a, b) => a.rank - b.rank);
+      const selA = document.getElementById('teamA');
+      const selB = document.getElementById('teamB');
+
+      teams.forEach(t => {
+        const optA = new Option(`#${t.rank} ${t.display_name}`, t.slug);
+        const optB = new Option(`#${t.rank} ${t.display_name}`, t.slug);
+        selA.add(optA);
+        selB.add(optB);
+      });
+
+      selA.addEventListener('change', checkReady);
+      selB.addEventListener('change', checkReady);
+    }
+
+    function checkReady() {
+      const a = document.getElementById('teamA').value;
+      const b = document.getElementById('teamB').value;
+      document.getElementById('simBtn').disabled = !(a && b && a !== b);
+    }
+
+    // Expose to global scope for onclick handlers
+    window.handleEmailAuth = async function(e) {
+      e.preventDefault();
+      const email = document.getElementById('authEmail').value;
+      const password = document.getElementById('authPassword').value;
+      const errEl = document.getElementById('authError');
+      errEl.style.display = 'none';
+
+      try {
+        if (isSignUp) {
+          await createUserWithEmailAndPassword(auth, email, password);
+        } else {
+          await signInWithEmailAndPassword(auth, email, password);
+        }
+      } catch (err) {
+        errEl.textContent = err.code === 'auth/invalid-credential' ? 'Invalid email or password.'
+          : err.code === 'auth/email-already-in-use' ? 'Email already registered. Try signing in.'
+          : err.code === 'auth/weak-password' ? 'Password must be at least 6 characters.'
+          : err.message;
+        errEl.style.display = 'block';
+      }
+    };
+
+    window.handleGoogleAuth = async function() {
+      try {
+        await signInWithPopup(auth, googleProvider);
+      } catch (err) {
+        const errEl = document.getElementById('authError');
+        errEl.textContent = 'Google sign-in failed. Try again.';
+        errEl.style.display = 'block';
+      }
+    };
+
+    window.toggleAuthMode = function() {
+      isSignUp = !isSignUp;
+      document.getElementById('authSubmitBtn').textContent = isSignUp ? 'Create Account' : 'Sign In';
+      document.getElementById('authToggle').innerHTML = isSignUp
+        ? 'Already have an account? <a onclick="toggleAuthMode()">Sign in</a>'
+        : 'New here? <a onclick="toggleAuthMode()">Create account</a>';
+    };
+
+    window.signOutUser = async function() {
+      await signOut(auth);
+    };
+
+    window.runMatchup = async function() {
+      const slugA = document.getElementById('teamA').value;
+      const slugB = document.getElementById('teamB').value;
+      if (!slugA || !slugB || slugA === slugB) return;
+
+      const tA = ratingsMap[slugA];
+      const tB = ratingsMap[slugB];
+      const k = modelConfig.k || 0.17161;
+
+      const diff = tA.rating - tB.rating;
+      const pA = 1 / (1 + Math.exp(-k * diff));
+      const pB = 1 - pA;
+
+      const favPct = Math.max(pA, pB) * 100;
+      let tier, tierClass;
+      if (favPct >= 80) { tier = 'Strong Favorite'; tierClass = 'tier-strong'; }
+      else if (favPct >= 65) { tier = 'Moderate Favorite'; tierClass = 'tier-mod'; }
+      else if (favPct >= 55) { tier = 'Live Dog'; tierClass = 'tier-live'; }
+      else { tier = 'Coin Flip'; tierClass = 'tier-coin'; }
+
+      const tierEl = document.getElementById('resultTier');
+      tierEl.textContent = tier;
+      tierEl.className = 'result-tier ' + tierClass;
+
+      document.getElementById('resultNameA').textContent = tA.display_name;
+      document.getElementById('resultConfA').textContent = tA.conference || '';
+      document.getElementById('resultPctA').textContent = (pA * 100).toFixed(1) + '%';
+      document.getElementById('resultPctA').className = 'result-team-pct ' + (pA >= pB ? 'winner' : 'loser');
+      document.getElementById('resultRatingA').textContent = 'Rating: ' + tA.rating.toFixed(1);
+
+      document.getElementById('resultNameB').textContent = tB.display_name;
+      document.getElementById('resultConfB').textContent = tB.conference || '';
+      document.getElementById('resultPctB').textContent = (pB * 100).toFixed(1) + '%';
+      document.getElementById('resultPctB').className = 'result-team-pct ' + (pB >= pA ? 'winner' : 'loser');
+      document.getElementById('resultRatingB').textContent = 'Rating: ' + tB.rating.toFixed(1);
+
+      const barFill = document.getElementById('resultBarFill');
+      barFill.style.width = '0%';
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => { barFill.style.width = (pA * 100) + '%'; });
+      });
+
+      document.getElementById('resultDiff').textContent = (diff >= 0 ? '+' : '') + diff.toFixed(2);
+      document.getElementById('resultK').textContent = k.toFixed(5);
+      document.getElementById('resultGames').textContent = (modelConfig.total_games || 10429).toLocaleString();
+
+      document.getElementById('resultCard').classList.add('visible');
+      document.getElementById('resultReset').classList.remove('hidden');
+      document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      // Log usage
+      try {
+        await addDoc(collection(db, 'usage_logs'), {
+          user_email: currentUser.email,
+          team_a: slugA,
+          team_b: slugB,
+          prob_a: parseFloat(pA.toFixed(4)),
+          prob_b: parseFloat(pB.toFixed(4)),
+          timestamp: serverTimestamp()
+        });
+        // Increment query count
+        const userRef = doc(db, 'users', currentUser.email.toLowerCase());
+        await updateDoc(userRef, { query_count: increment(1) });
+      } catch (e) {
+        console.log('Usage log failed (non-critical):', e);
+      }
+    };
+
+    window.resetMatchup = function() {
+      document.getElementById('teamA').value = '';
+      document.getElementById('teamB').value = '';
+      document.getElementById('simBtn').disabled = true;
+      document.getElementById('resultCard').classList.remove('visible');
+      document.getElementById('resultReset').classList.add('hidden');
+    };
+  </script>
+</body>
+</html>
