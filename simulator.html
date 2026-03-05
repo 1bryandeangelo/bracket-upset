@@ -6,6 +6,8 @@
   <title>Matchup Simulator — Bracket Upset</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
   <style>
     :root{--fg:#0F172A;--fg-sec:#475569;--fg-muted:#94a3b8;--bg:#f8fafc;--bg-card:#fff;--border:#e2e8f0;--accent:#22C55E;--accent-hover:#16a34a;--accent-dim:#bbf7d0;--navy:#0F172A;--amber:#f59e0b;--amber-light:#fefce8;--serif:'IBM Plex Serif',Georgia,serif;--sans:'IBM Plex Sans',-apple-system,sans-serif;--mono:'IBM Plex Mono',monospace}
     *{margin:0;padding:0;box-sizing:border-box}
@@ -333,12 +335,30 @@
       const selB = document.getElementById('teamB');
 
       teams.forEach(t => {
-        const optA = new Option(`#${t.rank} ${t.display_name}`, t.slug);
-        const optB = new Option(`#${t.rank} ${t.display_name}`, t.slug);
+        const optA = new Option(`${t.display_name} (#${t.rank})`, t.slug);
+        const optB = new Option(`${t.display_name} (#${t.rank})`, t.slug);
         selA.add(optA);
         selB.add(optB);
       });
-
+      
+      new TomSelect("#teamA", {
+        create: false,
+        sortField: {
+          field: "text",
+          direction: "asc"
+        },
+        placeholder: "Type team name..."
+      });
+      
+      new TomSelect("#teamB", {
+        create: false,
+        sortField: {
+          field: "text",
+          direction: "asc"
+        },
+        placeholder: "Type team name..."
+      });
+      
       selA.addEventListener('change', checkReady);
       selB.addEventListener('change', checkReady);
     }
